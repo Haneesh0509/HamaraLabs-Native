@@ -52,3 +52,4 @@ const addSchool = async (schoolData: School) => {
 };
 
 export { addSchool };
+export default db;

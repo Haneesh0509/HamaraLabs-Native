@@ -1,47 +1,58 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { StatusBar } from "expo-status-bar";
+import { onAuthStateChanged, User } from 'firebase/auth';
+import auth from '@/firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import db from '@/firebase/firestore';
+import tw from "twrnc";
 
 const Index = () => {
     const router = useRouter();
-    // State to store form data
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+    
+    const [user, setUser] = useState<any>();
+    const [userRole, setUserRole] = useState<any>("");
 
-    // Function to handle form submission
-    const handleSubmit = () => {
-        if (name === '' || email === '') {
-            Alert.alert('Please fill out all fields.');
-        } else {
-            Alert.alert(`Form Submitted: \nName: ${name} \nEmail: ${email}`);
-        }
-    };
+    useEffect(() => {
+        onAuthStateChanged(auth, async (newUser) => {
+            setUser(newUser);
+            if (newUser) {
+                const ref = doc(db, "atlUsers", newUser.uid);
+                onSnapshot(ref, async (docSnap) => {
+                    if (docSnap.exists()) {
+                        let data = docSnap.data();
+                     if (data && data.role !== undefined) {
+                            let role = data.role;
+                            setUserRole(role);
+                        } else {
+                            console.error('Role is undefined or does not exist in the document');
+                        }
+                    } else {
+                        console.error('Document does not exist');
+                    }
+                });
+            } else {
+                router.replace("/login")
+            }
+        });        
+    }, []);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Enter your name"
-                value={name}
-                onChangeText={(text) => setName(text)}
-            />
-
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                value={email}
-                onChangeText={(text) => setEmail(text)}
-                keyboardType="email-address"
-            />
-
-            <Button title="Submit" onPress={handleSubmit} />
-            <View style={{ marginTop: 15 }}>
-                <Button title="Open School Form" onPress={() => router.push("/school-form")} />
-            </View>
-            <StatusBar style='dark' />
+            {
+                user ?
+                <View style={{ marginTop: 15 }}>
+                    <Text style={tw`text-xl font-extrabold mb-6`}>Welcome, {user.email}!</Text>
+                    <Text style={tw`text-lg font-semibold mb-10`}>You are {userRole && userRole}.</Text>
+                    <View style={tw`mb-5`}>
+                        <Button title="Open School Form" onPress={() => router.push("/school-form")} />
+                    </View>
+                    <View>
+                        <Button title="Logout" onPress={() => auth.signOut()} />
+                    </View>
+                </View> :  <View style={{ marginTop: 15 }}><Text>You aren't logged in! The app is glitched please re-open!</Text></View>
+            }
         </View>
     );
 };
