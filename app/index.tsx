@@ -1,8 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
-import { StatusBar } from "expo-status-bar";
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { onAuthStateChanged } from 'firebase/auth';
 import auth from '@/firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 import db from '@/firebase/firestore';
@@ -46,7 +45,10 @@ const Index = () => {
                     <Text style={tw`text-xl font-extrabold mb-6`}>Welcome, {user.email}!</Text>
                     <Text style={tw`text-lg font-semibold mb-10`}>You are {userRole && userRole}.</Text>
                     <View style={tw`mb-5`}>
-                        <Button title="Open School Form" onPress={() => router.push("/school-form")} />
+                        <Button title="Open School Form" onPress={() => router.push("/school-data/form")} />
+                    </View>
+                    <View style={tw`mb-5`}>
+                        <Button title="Open School Report" onPress={() => router.push("/school-data/report")} />
                     </View>
                     <View>
                         <Button title="Logout" onPress={() => auth.signOut()} />

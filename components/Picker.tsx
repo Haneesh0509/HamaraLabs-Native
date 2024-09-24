@@ -47,7 +47,7 @@ const CustomPicker = ({ selectedValue, onValueChange, data, placeholder, style }
                         <View
                             style={[
                                 tw`bg-white rounded-lg p-4 w-10/12`,
-                                { maxHeight: screenHeight * 0.5 } // 50% of the screen height
+                                { maxHeight: screenHeight * 0.65 } // 50% of the screen height
                             ]}
                         >
                             {/* Search Bar */}
